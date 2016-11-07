@@ -11,8 +11,8 @@ $(window).on("resize", () => {
 });
 
 $(window).on("mousemove", (e) => {
-  circle.targetX = e.clientX;
-  circle.targetY = e.clientY;
+  circle.targetX = e.offsetX;
+  circle.targetY = e.offsetY;
 });
 
 class Circle {
