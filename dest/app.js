@@ -23,13 +23,22 @@ var Circle = function () {
     this.x = x;
     this.y = y;
     this.r = r;
+    this.vx = 0;
+    this.spring = 0.1;
+    this.targetX = 300;
   }
 
   _createClass(Circle, [{
     key: "render",
     value: function render(ctx) {
       ctx.beginPath();
+
+      var dx = this.targetX - this.x;
+      var ax = dx * this.spring;
+      this.vx += ax;
+      this.x += this.vx;
       ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2, true);
+
       ctx.fill();
     }
   }]);
