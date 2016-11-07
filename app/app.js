@@ -18,6 +18,7 @@ class Circle {
     this.vx = 0;
     this.spring = 0.1;
     this.targetX = 300;
+    this.friction = 0.95;
   }
 
   render(ctx) {
@@ -26,6 +27,7 @@ class Circle {
     const dx = this.targetX - this.x;
     const ax = dx * this.spring;
     this.vx += ax;
+    this.vx *= this.friction
     this.x += this.vx;
     ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2, true);
 
