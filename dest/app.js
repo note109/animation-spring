@@ -5,15 +5,20 @@ var _createClass = function () { function defineProperties(target, props) { for 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var stage = void 0;
+var circle = void 0;
 
 $(function () {
-  var circle = new Circle(150, 150, 40);
-
+  circle = new Circle(150, 150, 40);
   stage = new Stage([circle]);
 });
 
 $(window).on("resize", function () {
   stage.init();
+});
+
+$(window).on("mousemove", function (e) {
+  circle.targetX = e.clientX;
+  circle.targetY = e.clientY;
 });
 
 var Circle = function () {

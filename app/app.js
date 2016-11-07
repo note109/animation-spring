@@ -1,13 +1,18 @@
 let stage;
+let circle;
 
 $(() => {
-  const circle = new Circle(150, 150, 40);
-
+  circle = new Circle(150, 150, 40);
   stage = new Stage([circle]);
 });
 
 $(window).on("resize", () => {
   stage.init();
+});
+
+$(window).on("mousemove", (e) => {
+  circle.targetX = e.clientX;
+  circle.targetY = e.clientY;
 });
 
 class Circle {
