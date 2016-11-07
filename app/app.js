@@ -15,10 +15,15 @@ class Circle {
     this.x = x;
     this.y = y;
     this.r = r;
-    this.vx = 0;
+
     this.spring = 0.1;
-    this.targetX = 300;
     this.friction = 0.95;
+
+    this.vx = 50;
+    this.targetX = 300;
+
+    this.vy = 0;
+    this.targetY = 300;
   }
 
   render(ctx) {
@@ -29,6 +34,13 @@ class Circle {
     this.vx += ax;
     this.vx *= this.friction
     this.x += this.vx;
+
+    const dy = this.targetY - this.y;
+    const ay = dy * this.spring;
+    this.vy += ay;
+    this.vy *= this.friction
+    this.y += this.vy;
+
     ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2, true);
 
     ctx.fill();
