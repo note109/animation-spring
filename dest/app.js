@@ -9,7 +9,8 @@ var circle = void 0;
 
 $(function () {
   circle = new Circle(150, 150, 40);
-  stage = new Stage([circle]);
+  var circle2 = new Circle(150, 150, 40, circle);
+  stage = new Stage([circle, circle2]);
 });
 
 $(window).on("resize", function () {
@@ -17,12 +18,12 @@ $(window).on("resize", function () {
 });
 
 $(window).on("mousemove", function (e) {
-  circle.targetX = e.clientX;
-  circle.targetY = e.clientY;
+  circle.targetX = e.offsetX;
+  circle.targetY = e.offsetY;
 });
 
 var Circle = function () {
-  function Circle(x, y, r) {
+  function Circle(x, y, r, chainTo) {
     _classCallCheck(this, Circle);
 
     this.x = x;
@@ -30,13 +31,16 @@ var Circle = function () {
     this.r = r;
 
     this.spring = 0.1;
-    this.friction = 0.95;
+    this.friction = 0.85;
 
     this.vx = 50;
     this.targetX = 300;
 
     this.vy = 0;
     this.targetY = 300;
+    this.gravity = 30;
+
+    this.chainTo = chainTo;
   }
 
   _createClass(Circle, [{
@@ -44,21 +48,33 @@ var Circle = function () {
     value: function render(ctx) {
       ctx.beginPath();
 
-      var dx = this.targetX - this.x;
+      var dx = this.getTargetX() - this.x;
       var ax = dx * this.spring;
       this.vx += ax;
       this.vx *= this.friction;
       this.x += this.vx;
 
-      var dy = this.targetY - this.y;
+      var dy = this.getTargetY() - this.y;
       var ay = dy * this.spring;
+      this.y += this.gravity;
       this.vy += ay;
       this.vy *= this.friction;
       this.y += this.vy;
 
       ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2, true);
 
+      ctx.fillStyle = "rgba(155, 187, 89, 0.8)";
       ctx.fill();
+    }
+  }, {
+    key: "getTargetX",
+    value: function getTargetX() {
+      return this.chainTo ? this.chainTo.x : this.targetX;
+    }
+  }, {
+    key: "getTargetY",
+    value: function getTargetY() {
+      return this.chainTo ? this.chainTo.y : this.targetY;
     }
   }]);
 
