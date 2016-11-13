@@ -5,6 +5,7 @@ let cursor = {
   dragging: false,
   circle: undefined,
 };
+let hold = false;
 
 $(() => {
   const circle1 = new Circle(150, 150, 40);
@@ -33,6 +34,14 @@ $(window).on("mousemove", (e) => {
 
 $(window).on("mouseup", (e) => {
   cursor.dragging = false;
+});
+
+$(window).on("keypress", (e) => {
+  hold = true;
+});
+
+$(window).on("keyup", (e) => {
+  hold = false;
 });
 
 const getId = (() => {
@@ -75,23 +84,25 @@ class Circle {
       this.x = cursor.x;
       this.y = cursor.y;
     } else {
-      this.chainTos.forEach((chainTo) => {
-        const dx = chainTo.x - this.x;
-        const dy = chainTo.y - this.y;
-        const angle = Math.atan2(dy, dx);
-        const targetX = chainTo.x - Math.cos(angle) * this.distance;
-        const targetY = chainTo.y - Math.sin(angle) * this.distance;
-        const ax = (targetX - this.x) * this.spring;
-        const ay = (targetY - this.y) * this.spring;
-        this.vx += ax;
-        this.vx *= this.friction
-        this.x += this.vx;
+      if (!hold) {
+        this.chainTos.forEach((chainTo) => {
+          const dx = chainTo.x - this.x;
+          const dy = chainTo.y - this.y;
+          const angle = Math.atan2(dy, dx);
+          const targetX = chainTo.x - Math.cos(angle) * this.distance;
+          const targetY = chainTo.y - Math.sin(angle) * this.distance;
+          const ax = (targetX - this.x) * this.spring;
+          const ay = (targetY - this.y) * this.spring;
+          this.vx += ax;
+          this.vx *= this.friction
+          this.x += this.vx;
 
-        this.y += this.gravity;
-        this.vy += ay;
-        this.vy *= this.friction
-        this.y += this.vy;
-      });
+          this.y += this.gravity;
+          this.vy += ay;
+          this.vy *= this.friction
+          this.y += this.vy;
+        });
+      }
     }
 
     const col = "rgba(73, 195, 179, 0.8)";
@@ -104,7 +115,7 @@ class Circle {
       const dx = Math.abs(this.x - chainTo.x);
       const dy = Math.abs(this.y - chainTo.y);
       const d = Math.sqrt(dx * dx + dy * dy);
-      const width = Math.max(40 - (d / 30 * 3), 20);
+      const width = Math.max(30 - (d / 30 * 3), 20);
 
       ctx.beginPath();
       ctx.moveTo(this.x, this.y);
