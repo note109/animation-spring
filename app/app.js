@@ -39,6 +39,7 @@ class Handle {
     this.x = x;
     this.y = y;
     this.r = r;
+    this.dragged = false;
   }
 
   render(ctx) {
@@ -55,12 +56,18 @@ class Handle {
 
   isDragged() {
     if (cursor.dragging === false) {
-      return false;
+      this.dragged = false;
+
+      return this.dragged;
     }
     const dx = Math.abs(this.x - cursor.x);
     const dy = Math.abs(this.y - cursor.y);
 
-    return dx <= this.r && dy<= this.r;
+    if (dx <= this.r && dy<= this.r) {
+      this.dragged = true;
+    }
+
+    return this.dragged;
   }
 
   handleDrag() {
@@ -108,6 +115,13 @@ class Circle {
     ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2, true);
     ctx.fillStyle = "rgba(155, 187, 89, 0.8)";
     ctx.fill();
+
+    ctx.beginPath();
+    ctx.moveTo(this.x, this.y);
+    ctx.lineTo(this.chainTos[0].x, this.chainTos[0].y);
+    ctx.lineWidth = 30;
+    ctx.strokeStyle = "rgba(155, 187, 89, 0.8)";
+    ctx.stroke();
   }
 
   getTargetX(chain) {
