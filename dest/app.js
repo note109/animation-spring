@@ -5,7 +5,6 @@ var _createClass = function () { function defineProperties(target, props) { for 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var stage = void 0;
-var circle = void 0;
 var cursor = {
   x: 0,
   y: 0,
@@ -13,17 +12,15 @@ var cursor = {
 };
 
 $(function () {
-  var handle1 = new Handle(257, 221, 10);
-  var handle2 = new Handle(368, 117, 20);
-  var handle3 = new Handle(500, 149, 30);
-  var handle4 = new Handle(553, 278, 20);
-  var handle5 = new Handle(458, 347, 20);
-  var handle6 = new Handle(314, 369, 20);
+  var circle1 = new Circle(150, 150, 40);
+  var circle2 = new Circle(150, 250, 40);
+  var circle3 = new Circle(250, 150, 40);
 
-  var handles = [handle1, handle2, handle3, handle4, handle5, handle6];
+  circle1.setChainTos([circle2, circle3]);
+  circle2.setChainTos([circle1, circle3]);
+  circle3.setChainTos([circle1, circle2]);
 
-  circle = new Circle(150, 150, 40, handles);
-  stage = new Stage([circle].concat(handles));
+  stage = new Stage([circle1, circle2, circle3]);
 });
 
 $(window).on("resize", function () {
@@ -43,28 +40,83 @@ $(window).on("mouseup", function (e) {
   cursor.dragging = false;
 });
 
-var Handle = function () {
-  function Handle(x, y, r) {
-    _classCallCheck(this, Handle);
+var Circle = function () {
+  function Circle(x, y, r) {
+    _classCallCheck(this, Circle);
 
     this.x = x;
     this.y = y;
     this.r = r;
+
+    this.spring = 0.1;
+    this.friction = 0.85;
+
+    this.vx = 50;
+
+    this.vy = 0;
+    this.gravity = 0;
+
+    this.chainTos = [];
+
     this.dragged = false;
+
+    this.distance = 150;
   }
 
-  _createClass(Handle, [{
+  _createClass(Circle, [{
+    key: "setChainTos",
+    value: function setChainTos(chainTos) {
+      this.chainTos = chainTos;
+    }
+  }, {
     key: "render",
     value: function render(ctx) {
+      var _this = this;
+
       ctx.beginPath();
 
       if (this.isDragged()) {
-        this.handleDrag();
+        this.x = cursor.x;
+        this.y = cursor.y;
+      } else {
+        this.chainTos.forEach(function (chainTo) {
+          var dx = chainTo.x - _this.x;
+          var dy = chainTo.y - _this.y;
+          var angle = Math.atan2(dy, dx);
+          var targetX = chainTo.x - Math.cos(angle) * _this.distance;
+          var targetY = chainTo.y - Math.sin(angle) * _this.distance;
+          var ax = (targetX - _this.x) * _this.spring;
+          var ay = (targetY - _this.y) * _this.spring;
+          _this.vx += ax;
+          _this.vx *= _this.friction;
+          _this.x += _this.vx;
+
+          _this.y += _this.gravity;
+          _this.vy += ay;
+          _this.vy *= _this.friction;
+          _this.y += _this.vy;
+        });
       }
 
+      var col = "rgba(73, 195, 179, 0.8)";
+
       ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2, true);
-      ctx.fillStyle = "rgba(204, 61, 58, 0.8)";
+      ctx.fillStyle = col;
       ctx.fill();
+
+      this.chainTos.forEach(function (chainTo) {
+        var dx = Math.abs(_this.x - chainTo.x);
+        var dy = Math.abs(_this.y - chainTo.y);
+        var d = Math.sqrt(dx * dx + dy * dy);
+        var width = Math.max(40 - d / 30 * 3, 20);
+
+        ctx.beginPath();
+        ctx.moveTo(_this.x, _this.y);
+        ctx.lineTo(chainTo.x, chainTo.y);
+        ctx.lineWidth = width;
+        ctx.strokeStyle = col;
+        ctx.stroke();
+      });
     }
   }, {
     key: "isDragged",
@@ -88,82 +140,6 @@ var Handle = function () {
     value: function handleDrag() {
       this.x = cursor.x;
       this.y = cursor.y;
-    }
-  }]);
-
-  return Handle;
-}();
-
-var Circle = function () {
-  function Circle(x, y, r, chainTos) {
-    _classCallCheck(this, Circle);
-
-    this.x = x;
-    this.y = y;
-    this.r = r;
-
-    this.spring = 0.1;
-    this.friction = 0.85;
-
-    this.vx = 50;
-
-    this.vy = 0;
-    this.gravity = 0;
-
-    this.chainTos = chainTos;
-  }
-
-  _createClass(Circle, [{
-    key: "render",
-    value: function render(ctx) {
-      var _this = this;
-
-      ctx.beginPath();
-
-      this.chainTos.forEach(function (chainTo) {
-        var dx = _this.getTargetX(chainTo) - _this.x;
-        var ax = dx * _this.spring;
-        _this.vx += ax;
-        _this.vx *= _this.friction;
-        _this.x += _this.vx;
-
-        var dy = _this.getTargetY(chainTo) - _this.y;
-        var ay = dy * _this.spring;
-        _this.y += _this.gravity;
-        _this.vy += ay;
-        _this.vy *= _this.friction;
-        _this.y += _this.vy;
-      });
-
-      var col = "rgba(73, 195, 179, 0.8)";
-
-      ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2, true);
-      ctx.fillStyle = col;
-      ctx.fill();
-
-      this.chainTos.forEach(function (chainTo) {
-        var dx = Math.abs(_this.x - chainTo.x);
-        var dy = Math.abs(_this.y - chainTo.y);
-        var d = Math.sqrt(dx * dx + dy * dy);
-        var width = Math.max(60 - d / 30 * 3, 20);
-
-        ctx.beginPath();
-        ctx.moveTo(_this.x, _this.y);
-        ctx.lineTo(chainTo.x, chainTo.y);
-        ctx.lineWidth = width;
-        ctx.strokeStyle = col;
-        ctx.stroke();
-      });
-    }
-  }, {
-    key: "getTargetX",
-    value: function getTargetX(chain) {
-      return chain.x;
-    }
-  }, {
-    key: "getTargetY",
-    value: function getTargetY(chain) {
-      return chain.y;
     }
   }]);
 
