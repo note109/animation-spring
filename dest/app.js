@@ -13,11 +13,14 @@ var cursor = {
 };
 
 $(function () {
-  var handle1 = new Handle(50, 200, 20);
-  var handle2 = new Handle(350, 200, 20);
-  var handle3 = new Handle(150, 400, 20);
+  var handle1 = new Handle(257, 221, 10);
+  var handle2 = new Handle(368, 117, 20);
+  var handle3 = new Handle(500, 149, 30);
+  var handle4 = new Handle(553, 278, 20);
+  var handle5 = new Handle(458, 347, 20);
+  var handle6 = new Handle(314, 369, 20);
 
-  var handles = [handle1, handle2, handle3];
+  var handles = [handle1, handle2, handle3, handle4, handle5, handle6];
 
   circle = new Circle(150, 150, 40, handles);
   stage = new Stage([circle].concat(handles));
@@ -60,7 +63,7 @@ var Handle = function () {
       }
 
       ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2, true);
-      ctx.fillStyle = "rgba(192, 80, 77, 0.8)";
+      ctx.fillStyle = "rgba(204, 61, 58, 0.8)";
       ctx.fill();
     }
   }, {
@@ -132,16 +135,25 @@ var Circle = function () {
         _this.y += _this.vy;
       });
 
+      var col = "rgba(73, 195, 179, 0.8)";
+
       ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2, true);
-      ctx.fillStyle = "rgba(155, 187, 89, 0.8)";
+      ctx.fillStyle = col;
       ctx.fill();
 
-      ctx.beginPath();
-      ctx.moveTo(this.x, this.y);
-      ctx.lineTo(this.chainTos[0].x, this.chainTos[0].y);
-      ctx.lineWidth = 30;
-      ctx.strokeStyle = "rgba(155, 187, 89, 0.8)";
-      ctx.stroke();
+      this.chainTos.forEach(function (chainTo) {
+        var dx = Math.abs(_this.x - chainTo.x);
+        var dy = Math.abs(_this.y - chainTo.y);
+        var d = Math.sqrt(dx * dx + dy * dy);
+        var width = Math.max(60 - d / 30 * 3, 20);
+
+        ctx.beginPath();
+        ctx.moveTo(_this.x, _this.y);
+        ctx.lineTo(chainTo.x, chainTo.y);
+        ctx.lineWidth = width;
+        ctx.strokeStyle = col;
+        ctx.stroke();
+      });
     }
   }, {
     key: "getTargetX",
