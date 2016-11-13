@@ -33,49 +33,6 @@ $(window).on("mouseup", (e) => {
   cursor.dragging = false;
 });
 
-class Handle {
-  constructor(x, y, r) {
-    this.x = x;
-    this.y = y;
-    this.r = r;
-    this.dragged = false;
-  }
-
-  render(ctx) {
-    ctx.beginPath();
-
-    if (this.isDragged()) {
-      this.handleDrag();
-    }
-
-    ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2, true);
-    ctx.fillStyle = "rgba(204, 61, 58, 0.8)";
-    ctx.fill();
-  }
-
-  isDragged() {
-    if (cursor.dragging === false) {
-      this.dragged = false;
-
-      return this.dragged;
-    }
-    const dx = Math.abs(this.x - cursor.x);
-    const dy = Math.abs(this.y - cursor.y);
-
-    if (dx <= this.r && dy<= this.r) {
-      this.dragged = true;
-    }
-
-    return this.dragged;
-  }
-
-  handleDrag() {
-    this.x = cursor.x;
-    this.y = cursor.y;
-  }
-
-}
-
 class Circle {
   constructor(x, y, r) {
     this.x = x;
