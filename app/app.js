@@ -7,12 +7,12 @@ let cursor = {
 };
 
 $(() => {
-  const handle1 = new Handle(50, 200, 20);
-  const handle2 = new Handle(350, 200, 20);
-  const handle3 = new Handle(150, 400, 20);
-  const handle4 = new Handle(150, 450, 20);
-  const handle5 = new Handle(150, 500, 20);
-  const handle6 = new Handle(150, 550, 20);
+  const handle1 = new Handle(257, 221, 10);
+  const handle2 = new Handle(368, 117, 20);
+  const handle3 = new Handle(500, 149, 30);
+  const handle4 = new Handle(553, 278, 20);
+  const handle5 = new Handle(458, 347, 20);
+  const handle6 = new Handle(314, 369, 20);
 
   const handles = [handle1, handle2, handle3, handle4, handle5, handle6];
 
@@ -122,10 +122,15 @@ class Circle {
     ctx.fill();
 
     this.chainTos.forEach((chainTo) => {
+      const dx = Math.abs(this.x - chainTo.x);
+      const dy = Math.abs(this.y - chainTo.y);
+      const d = Math.sqrt(dx * dx + dy * dy);
+      const width = Math.max(60 - (d / 30 * 3), 20);
+
       ctx.beginPath();
       ctx.moveTo(this.x, this.y);
       ctx.lineTo(chainTo.x, chainTo.y);
-      ctx.lineWidth = 30;
+      ctx.lineWidth = width;
       ctx.strokeStyle = col;
       ctx.stroke();
     });
