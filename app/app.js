@@ -1,19 +1,69 @@
 let stage;
 let circle;
+let cursor = {
+  x: 0,
+  y: 0,
+  dragging: false,
+};
 
 $(() => {
   circle = new Circle(150, 150, 40);
-  stage = new Stage([circle]);
+  const handle = new Handle(150, 200, 20);
+  stage = new Stage([circle, handle]);
 });
 
 $(window).on("resize", () => {
   stage.init();
 });
 
-$(window).on("mousemove", (e) => {
-  circle.targetX = e.offsetX;
-  circle.targetY = e.offsetY;
+$(window).on("mousedown", (e) => {
+  cursor.dragging = true;
 });
+
+$(window).on("mousemove", (e) => {
+  cursor.x = e.offsetX;
+  cursor.y = e.offsetY;
+});
+
+$(window).on("mouseup", (e) => {
+  cursor.dragging = false;
+});
+
+class Handle {
+  constructor(x, y, r) {
+    this.x = x;
+    this.y = y;
+    this.r = r;
+  }
+
+  render(ctx) {
+    ctx.beginPath();
+
+    if (this.isDragged()) {
+      this.handleDrag();
+    }
+
+    ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2, true);
+    ctx.fillStyle = "rgba(192, 80, 77, 0.8)";
+    ctx.fill();
+  }
+
+  isDragged() {
+    if (cursor.dragging === false) {
+      return false;
+    }
+    const dx = Math.abs(this.x - cursor.x);
+    const dy = Math.abs(this.y - cursor.y);
+
+    return dx <= this.r && dy<= this.r;
+  }
+
+  handleDrag() {
+    this.x = cursor.x;
+    this.y = cursor.y;
+  }
+
+}
 
 class Circle {
   constructor(x, y, r, chainTo) {

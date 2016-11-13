@@ -6,20 +6,78 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 var stage = void 0;
 var circle = void 0;
+var cursor = {
+  x: 0,
+  y: 0,
+  dragging: false
+};
 
 $(function () {
   circle = new Circle(150, 150, 40);
-  stage = new Stage([circle]);
+  var handle = new Handle(150, 200, 20);
+  stage = new Stage([circle, handle]);
 });
 
 $(window).on("resize", function () {
   stage.init();
 });
 
-$(window).on("mousemove", function (e) {
-  circle.targetX = e.offsetX;
-  circle.targetY = e.offsetY;
+$(window).on("mousedown", function (e) {
+  cursor.dragging = true;
 });
+
+$(window).on("mousemove", function (e) {
+  cursor.x = e.offsetX;
+  cursor.y = e.offsetY;
+});
+
+$(window).on("mouseup", function (e) {
+  cursor.dragging = false;
+});
+
+var Handle = function () {
+  function Handle(x, y, r) {
+    _classCallCheck(this, Handle);
+
+    this.x = x;
+    this.y = y;
+    this.r = r;
+  }
+
+  _createClass(Handle, [{
+    key: "render",
+    value: function render(ctx) {
+      ctx.beginPath();
+
+      if (this.isDragged()) {
+        this.handleDrag();
+      }
+
+      ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2, true);
+      ctx.fillStyle = "rgba(192, 80, 77, 0.8)";
+      ctx.fill();
+    }
+  }, {
+    key: "isDragged",
+    value: function isDragged() {
+      if (cursor.dragging === false) {
+        return false;
+      }
+      var dx = Math.abs(this.x - cursor.x);
+      var dy = Math.abs(this.y - cursor.y);
+
+      return dx <= this.r && dy <= this.r;
+    }
+  }, {
+    key: "handleDrag",
+    value: function handleDrag() {
+      this.x = cursor.x;
+      this.y = cursor.y;
+    }
+  }]);
+
+  return Handle;
+}();
 
 var Circle = function () {
   function Circle(x, y, r, chainTo) {
