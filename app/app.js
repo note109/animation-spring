@@ -3,6 +3,7 @@ let cursor = {
   x: 0,
   y: 0,
   dragging: false,
+  circle: undefined,
 };
 
 $(() => {
@@ -34,11 +35,19 @@ $(window).on("mouseup", (e) => {
   cursor.dragging = false;
 });
 
+const getId = (() => {
+  let id = 0;
+  return () => {
+    return id++;
+  }
+})();
+
 class Circle {
   constructor(x, y, r) {
     this.x = x;
     this.y = y;
     this.r = r;
+    this.id = getId();
 
     this.spring = 0.1;
     this.friction = 0.85;
@@ -109,14 +118,20 @@ class Circle {
   isDragged() {
     if (cursor.dragging === false) {
       this.dragged = false;
+      cursor.circle = undefined;
 
       return this.dragged;
     }
+    if (cursor.circle !== undefined && cursor.circle !== this.id) {
+      return false;
+    }
+
     const dx = Math.abs(this.x - cursor.x);
     const dy = Math.abs(this.y - cursor.y);
 
     if (dx <= this.r && dy<= this.r) {
       this.dragged = true;
+      cursor.circle = this.id;
     }
 
     return this.dragged;
