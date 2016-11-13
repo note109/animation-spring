@@ -10,7 +10,8 @@ var circle = void 0;
 $(function () {
   circle = new Circle(150, 150, 40);
   var circle2 = new Circle(150, 150, 40, circle);
-  stage = new Stage([circle, circle2]);
+  var circle3 = new Circle(150, 150, 40, circle2);
+  stage = new Stage([circle, circle2, circle3]);
 });
 
 $(window).on("resize", function () {
@@ -38,7 +39,7 @@ var Circle = function () {
 
     this.vy = 0;
     this.targetY = 300;
-    this.gravity = 30;
+    this.gravity = 60;
 
     this.chainTo = chainTo;
   }
@@ -62,9 +63,15 @@ var Circle = function () {
       this.y += this.vy;
 
       ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2, true);
-
       ctx.fillStyle = "rgba(155, 187, 89, 0.8)";
       ctx.fill();
+
+      ctx.beginPath();
+      ctx.moveTo(this.x, this.y);
+      ctx.lineTo(this.getTargetX(), this.getTargetY());
+      ctx.lineWidth = 30;
+      ctx.strokeStyle = "rgba(155, 187, 89, 0.8)";
+      ctx.stroke();
     }
   }, {
     key: "getTargetX",

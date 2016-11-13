@@ -3,6 +3,7 @@ body {
   padding: 0; }
 
 .wrapper {
+  filter: url("#joint");
   width: calc(100vw - 50px);
   height: calc(100vh - 50px);
   margin: 25px;
