@@ -8,8 +8,10 @@ var stage = void 0;
 var cursor = {
   x: 0,
   y: 0,
-  dragging: false
+  dragging: false,
+  circle: undefined
 };
+var hold = false;
 
 $(function () {
   var circle1 = new Circle(150, 150, 40);
@@ -40,6 +42,21 @@ $(window).on("mouseup", function (e) {
   cursor.dragging = false;
 });
 
+$(window).on("keypress", function (e) {
+  hold = true;
+});
+
+$(window).on("keyup", function (e) {
+  hold = false;
+});
+
+var getId = function () {
+  var id = 0;
+  return function () {
+    return id++;
+  };
+}();
+
 var Circle = function () {
   function Circle(x, y, r) {
     _classCallCheck(this, Circle);
@@ -47,6 +64,7 @@ var Circle = function () {
     this.x = x;
     this.y = y;
     this.r = r;
+    this.id = getId();
 
     this.spring = 0.1;
     this.friction = 0.85;
@@ -79,23 +97,25 @@ var Circle = function () {
         this.x = cursor.x;
         this.y = cursor.y;
       } else {
-        this.chainTos.forEach(function (chainTo) {
-          var dx = chainTo.x - _this.x;
-          var dy = chainTo.y - _this.y;
-          var angle = Math.atan2(dy, dx);
-          var targetX = chainTo.x - Math.cos(angle) * _this.distance;
-          var targetY = chainTo.y - Math.sin(angle) * _this.distance;
-          var ax = (targetX - _this.x) * _this.spring;
-          var ay = (targetY - _this.y) * _this.spring;
-          _this.vx += ax;
-          _this.vx *= _this.friction;
-          _this.x += _this.vx;
+        if (!hold) {
+          this.chainTos.forEach(function (chainTo) {
+            var dx = chainTo.x - _this.x;
+            var dy = chainTo.y - _this.y;
+            var angle = Math.atan2(dy, dx);
+            var targetX = chainTo.x - Math.cos(angle) * _this.distance;
+            var targetY = chainTo.y - Math.sin(angle) * _this.distance;
+            var ax = (targetX - _this.x) * _this.spring;
+            var ay = (targetY - _this.y) * _this.spring;
+            _this.vx += ax;
+            _this.vx *= _this.friction;
+            _this.x += _this.vx;
 
-          _this.y += _this.gravity;
-          _this.vy += ay;
-          _this.vy *= _this.friction;
-          _this.y += _this.vy;
-        });
+            _this.y += _this.gravity;
+            _this.vy += ay;
+            _this.vy *= _this.friction;
+            _this.y += _this.vy;
+          });
+        }
       }
 
       var col = "rgba(73, 195, 179, 0.8)";
@@ -108,7 +128,7 @@ var Circle = function () {
         var dx = Math.abs(_this.x - chainTo.x);
         var dy = Math.abs(_this.y - chainTo.y);
         var d = Math.sqrt(dx * dx + dy * dy);
-        var width = Math.max(40 - d / 30 * 3, 20);
+        var width = Math.max(30 - d / 30 * 3, 20);
 
         ctx.beginPath();
         ctx.moveTo(_this.x, _this.y);
@@ -123,14 +143,20 @@ var Circle = function () {
     value: function isDragged() {
       if (cursor.dragging === false) {
         this.dragged = false;
+        cursor.circle = undefined;
 
         return this.dragged;
       }
+      if (cursor.circle !== undefined && cursor.circle !== this.id) {
+        return false;
+      }
+
       var dx = Math.abs(this.x - cursor.x);
       var dy = Math.abs(this.y - cursor.y);
 
       if (dx <= this.r && dy <= this.r) {
         this.dragged = true;
+        cursor.circle = this.id;
       }
 
       return this.dragged;
