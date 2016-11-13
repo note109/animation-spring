@@ -13,9 +13,14 @@ var cursor = {
 };
 
 $(function () {
-  circle = new Circle(150, 150, 40);
-  var handle = new Handle(150, 200, 20);
-  stage = new Stage([circle, handle]);
+  var handle1 = new Handle(50, 200, 20);
+  var handle2 = new Handle(350, 200, 20);
+  var handle3 = new Handle(150, 400, 20);
+
+  var handles = [handle1, handle2, handle3];
+
+  circle = new Circle(150, 150, 40, handles);
+  stage = new Stage([circle].concat(handles));
 });
 
 $(window).on("resize", function () {
@@ -80,7 +85,7 @@ var Handle = function () {
 }();
 
 var Circle = function () {
-  function Circle(x, y, r, chainTo) {
+  function Circle(x, y, r, chainTos) {
     _classCallCheck(this, Circle);
 
     this.x = x;
@@ -91,32 +96,34 @@ var Circle = function () {
     this.friction = 0.85;
 
     this.vx = 50;
-    this.targetX = 300;
 
     this.vy = 0;
-    this.targetY = 300;
     this.gravity = 0;
 
-    this.chainTo = chainTo;
+    this.chainTos = chainTos;
   }
 
   _createClass(Circle, [{
     key: "render",
     value: function render(ctx) {
+      var _this = this;
+
       ctx.beginPath();
 
-      var dx = this.getTargetX() - this.x;
-      var ax = dx * this.spring;
-      this.vx += ax;
-      this.vx *= this.friction;
-      this.x += this.vx;
+      this.chainTos.forEach(function (chainTo) {
+        var dx = _this.getTargetX(chainTo) - _this.x;
+        var ax = dx * _this.spring;
+        _this.vx += ax;
+        _this.vx *= _this.friction;
+        _this.x += _this.vx;
 
-      var dy = this.getTargetY() - this.y;
-      var ay = dy * this.spring;
-      this.y += this.gravity;
-      this.vy += ay;
-      this.vy *= this.friction;
-      this.y += this.vy;
+        var dy = _this.getTargetY(chainTo) - _this.y;
+        var ay = dy * _this.spring;
+        _this.y += _this.gravity;
+        _this.vy += ay;
+        _this.vy *= _this.friction;
+        _this.y += _this.vy;
+      });
 
       ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2, true);
       ctx.fillStyle = "rgba(155, 187, 89, 0.8)";
@@ -124,13 +131,13 @@ var Circle = function () {
     }
   }, {
     key: "getTargetX",
-    value: function getTargetX() {
-      return this.chainTo ? this.chainTo.x : this.targetX;
+    value: function getTargetX(chain) {
+      return chain.x;
     }
   }, {
     key: "getTargetY",
-    value: function getTargetY() {
-      return this.chainTo ? this.chainTo.y : this.targetY;
+    value: function getTargetY(chain) {
+      return chain.y;
     }
   }]);
 
@@ -161,12 +168,12 @@ var Stage = function () {
   }, {
     key: "render",
     value: function render() {
-      var _this = this;
+      var _this2 = this;
 
       this.ctx.clearRect(0, 0, this.width, this.height);
 
       this.contents.forEach(function (cnt) {
-        cnt.render(_this.ctx);
+        cnt.render(_this2.ctx);
       });
       requestAnimationFrame(this.render.bind(this));
     }
