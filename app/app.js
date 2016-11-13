@@ -10,8 +10,11 @@ $(() => {
   const handle1 = new Handle(50, 200, 20);
   const handle2 = new Handle(350, 200, 20);
   const handle3 = new Handle(150, 400, 20);
+  const handle4 = new Handle(150, 450, 20);
+  const handle5 = new Handle(150, 500, 20);
+  const handle6 = new Handle(150, 550, 20);
 
-  const handles = [handle1, handle2, handle3];
+  const handles = [handle1, handle2, handle3, handle4, handle5, handle6];
 
   circle = new Circle(150, 150, 40, handles);
   stage = new Stage([circle, ...handles]);
@@ -50,7 +53,7 @@ class Handle {
     }
 
     ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2, true);
-    ctx.fillStyle = "rgba(192, 80, 77, 0.8)";
+    ctx.fillStyle = "rgba(204, 61, 58, 0.8)";
     ctx.fill();
   }
 
@@ -112,16 +115,20 @@ class Circle {
       this.y += this.vy;
     });
 
+    const col = "rgba(73, 195, 179, 0.8)";
+
     ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2, true);
-    ctx.fillStyle = "rgba(155, 187, 89, 0.8)";
+    ctx.fillStyle = col;
     ctx.fill();
 
-    ctx.beginPath();
-    ctx.moveTo(this.x, this.y);
-    ctx.lineTo(this.chainTos[0].x, this.chainTos[0].y);
-    ctx.lineWidth = 30;
-    ctx.strokeStyle = "rgba(155, 187, 89, 0.8)";
-    ctx.stroke();
+    this.chainTos.forEach((chainTo) => {
+      ctx.beginPath();
+      ctx.moveTo(this.x, this.y);
+      ctx.lineTo(chainTo.x, chainTo.y);
+      ctx.lineWidth = 30;
+      ctx.strokeStyle = col;
+      ctx.stroke();
+    });
   }
 
   getTargetX(chain) {
