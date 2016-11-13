@@ -60,8 +60,11 @@ class Circle {
     this.chainTos.forEach((chainTo) => {
       const dx = chainTo.x - this.x;
       const dy = chainTo.y - this.y;
-      const ax = (this.getTargetX(dy, dx, chainTo) - this.x) * this.spring;
-      const ay = (this.getTargetY(dy, dx, chainTo) - this.y) * this.spring;
+      const angle = Math.atan2(dy, dx);
+      const targetX = chainTo.x - Math.cos(angle) * 100;
+      const targetY = chainTo.y - Math.sin(angle) * 100;
+      const ax = (targetX - this.x) * this.spring;
+      const ay = (targetY - this.y) * this.spring;
       this.vx += ax;
       this.vx *= this.friction
       this.x += this.vx;
@@ -93,17 +96,6 @@ class Circle {
     });
   }
 
-  getTargetX(y, x, chain) {
-    const angle = Math.atan2(y, x);
-
-    return chain.x - Math.cos(angle) * 300;
-  }
-
-  getTargetY(y, x, chain) {
-    const angle = Math.atan2(y, x);
-
-    return chain.y - Math.sin(angle) * 300;
-  }
 }
 
 class Stage {
