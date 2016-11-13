@@ -1,5 +1,4 @@
 let stage;
-let circle;
 let cursor = {
   x: 0,
   y: 0,
@@ -7,17 +6,14 @@ let cursor = {
 };
 
 $(() => {
-  const handle1 = new Handle(257, 221, 10);
-  const handle2 = new Handle(368, 117, 20);
-  const handle3 = new Handle(500, 149, 30);
-  const handle4 = new Handle(553, 278, 20);
-  const handle5 = new Handle(458, 347, 20);
-  const handle6 = new Handle(314, 369, 20);
+  const circle1 = new Circle(150, 150, 40);
+  const circle2 = new Circle(150, 250, 40);
+  const circle3 = new Circle(250, 150, 40);
 
-  const handles = [handle1, handle2, handle3, handle4, handle5, handle6];
+  circle1.setChainTos([circle2]);
+  circle2.setChainTos([circle1]);
 
-  circle = new Circle(150, 150, 40, handles);
-  stage = new Stage([circle, ...handles]);
+  stage = new Stage([circle1, circle2]);
 });
 
 $(window).on("resize", () => {
@@ -81,7 +77,7 @@ class Handle {
 }
 
 class Circle {
-  constructor(x, y, r, chainTos) {
+  constructor(x, y, r) {
     this.x = x;
     this.y = y;
     this.r = r;
@@ -94,6 +90,10 @@ class Circle {
     this.vy = 0;
     this.gravity = 0;
 
+    this.chainTos = [];
+  }
+
+  setChainTos(chainTos) {
     this.chainTos = chainTos;
   }
 
@@ -101,14 +101,14 @@ class Circle {
     ctx.beginPath();
 
     this.chainTos.forEach((chainTo) => {
-      const dx = this.getTargetX(chainTo) - this.x;
-      const ax = dx * this.spring;
+      const dx = chainTo.x - this.x;
+      const dy = chainTo.y - this.y;
+      const ax = (this.getTargetX(dy, dx, chainTo) - this.x) * this.spring;
+      const ay = (this.getTargetY(dy, dx, chainTo) - this.y) * this.spring;
       this.vx += ax;
       this.vx *= this.friction
       this.x += this.vx;
 
-      const dy = this.getTargetY(chainTo) - this.y;
-      const ay = dy * this.spring;
       this.y += this.gravity;
       this.vy += ay;
       this.vy *= this.friction
@@ -136,12 +136,16 @@ class Circle {
     });
   }
 
-  getTargetX(chain) {
-    return chain.x;
+  getTargetX(y, x, chain) {
+    const angle = Math.atan2(y, x);
+
+    return chain.x - Math.cos(angle) * 300;
   }
 
-  getTargetY(chain) {
-    return chain.y;
+  getTargetY(y, x, chain) {
+    const angle = Math.atan2(y, x);
+
+    return chain.y - Math.sin(angle) * 300;
   }
 }
 
