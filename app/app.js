@@ -48,6 +48,10 @@ class Circle {
     this.gravity = 0;
 
     this.chainTos = [];
+
+    this.dragged = false;
+
+    this.distance = 150;
   }
 
   setChainTos(chainTos) {
@@ -57,23 +61,28 @@ class Circle {
   render(ctx) {
     ctx.beginPath();
 
-    this.chainTos.forEach((chainTo) => {
-      const dx = chainTo.x - this.x;
-      const dy = chainTo.y - this.y;
-      const angle = Math.atan2(dy, dx);
-      const targetX = chainTo.x - Math.cos(angle) * 100;
-      const targetY = chainTo.y - Math.sin(angle) * 100;
-      const ax = (targetX - this.x) * this.spring;
-      const ay = (targetY - this.y) * this.spring;
-      this.vx += ax;
-      this.vx *= this.friction
-      this.x += this.vx;
+    if (this.isDragged()) {
+      this.x = cursor.x;
+      this.y = cursor.y;
+    } else {
+      this.chainTos.forEach((chainTo) => {
+        const dx = chainTo.x - this.x;
+        const dy = chainTo.y - this.y;
+        const angle = Math.atan2(dy, dx);
+        const targetX = chainTo.x - Math.cos(angle) * this.distance;
+        const targetY = chainTo.y - Math.sin(angle) * this.distance;
+        const ax = (targetX - this.x) * this.spring;
+        const ay = (targetY - this.y) * this.spring;
+        this.vx += ax;
+        this.vx *= this.friction
+        this.x += this.vx;
 
-      this.y += this.gravity;
-      this.vy += ay;
-      this.vy *= this.friction
-      this.y += this.vy;
-    });
+        this.y += this.gravity;
+        this.vy += ay;
+        this.vy *= this.friction
+        this.y += this.vy;
+      });
+    }
 
     const col = "rgba(73, 195, 179, 0.8)";
 
@@ -96,6 +105,26 @@ class Circle {
     });
   }
 
+  isDragged() {
+    if (cursor.dragging === false) {
+      this.dragged = false;
+
+      return this.dragged;
+    }
+    const dx = Math.abs(this.x - cursor.x);
+    const dy = Math.abs(this.y - cursor.y);
+
+    if (dx <= this.r && dy<= this.r) {
+      this.dragged = true;
+    }
+
+    return this.dragged;
+  }
+
+  handleDrag() {
+    this.x = cursor.x;
+    this.y = cursor.y;
+  }
 }
 
 class Stage {
