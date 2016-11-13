@@ -10,10 +10,11 @@ $(() => {
   const circle2 = new Circle(150, 250, 40);
   const circle3 = new Circle(250, 150, 40);
 
-  circle1.setChainTos([circle2]);
-  circle2.setChainTos([circle1]);
+  circle1.setChainTos([circle2, circle3]);
+  circle2.setChainTos([circle1, circle3]);
+  circle3.setChainTos([circle1, circle2]);
 
-  stage = new Stage([circle1, circle2]);
+  stage = new Stage([circle1, circle2, circle3]);
 });
 
 $(window).on("resize", () => {
@@ -94,7 +95,7 @@ class Circle {
       const dx = Math.abs(this.x - chainTo.x);
       const dy = Math.abs(this.y - chainTo.y);
       const d = Math.sqrt(dx * dx + dy * dy);
-      const width = Math.max(60 - (d / 30 * 3), 20);
+      const width = Math.max(40 - (d / 30 * 3), 20);
 
       ctx.beginPath();
       ctx.moveTo(this.x, this.y);
